@@ -1,0 +1,52 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: #050814;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#rotate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #050814;
+  z-index: 10;
+  color: #9fd8ff;
+  font-family: system-ui, sans-serif;
+  text-align: center;
+}
+
+.rotate-inner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rotate-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+/* Küçük ekranlı telefonlarda yatay tutulursa uyarı göster */
+@media (orientation: landscape) and (max-height: 500px) {
+  #rotate {
+    display: block;
+  }
+}
