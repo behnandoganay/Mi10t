@@ -4,7 +4,7 @@
 const Storage = (() => {
   const K_CUSTOM = 'imposter_custom_categories'; // [{id, name, words:[]}]
   const K_HIDDEN = 'imposter_hidden_builtins';   // [id, ...] kapatılan hazır kategoriler
-  const K_SETTINGS = 'imposter_settings';        // { players, imposters, imposterSeesCategory, selected:[ids] }
+  const K_SETTINGS = 'imposter_settings';        // { players, imposters, imposterGetsHint, selected:[ids] }
 
   function read(key, fallback) {
     try {
@@ -86,7 +86,7 @@ const Storage = (() => {
     return read(K_SETTINGS, {
       players: 4,
       imposters: 1,
-      imposterSeesCategory: true,
+      imposterGetsHint: true, // imposter aynı temadan bir ipucu kelimesi görsün mü
       selected: null, // null => tüm açık kategoriler
     });
   }

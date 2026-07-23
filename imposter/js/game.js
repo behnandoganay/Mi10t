@@ -14,10 +14,10 @@ const Game = (() => {
     return a;
   }
 
-  // Yeni tur başlat. cfg: { players, imposters, imposterSeesCategory, categories:[cat...] }
+  // Yeni tur başlat. cfg: { players, imposters, imposterGetsHint, categories:[cat...] }
   // Döner: { ok:true } ya da { ok:false, error:'...' }
   function start(cfg) {
-    const { players, imposters, imposterSeesCategory } = cfg;
+    const { players, imposters, imposterGetsHint } = cfg;
     const cats = (cfg.categories || []).filter((c) => c.words && c.words.length > 0);
 
     if (players < 3) return { ok: false, error: 'En az 3 oyuncu gerekli.' };
@@ -29,6 +29,15 @@ const Game = (() => {
     const category = cats[rand(cats.length)];
     const word = category.words[rand(category.words.length)];
 
+    // İmposter ipucu: aynı kategoriden, gizli kelimeden FARKLI rastgele bir kelime.
+    // Böylece imposter temayı sezer ama gerçek kelimeyi bilmez. (Kategoride tek
+    // kelime varsa ipucu verilemez -> null.)
+    let hint = null;
+    if (imposterGetsHint) {
+      const others = category.words.filter((w) => w !== word);
+      if (others.length > 0) hint = others[rand(others.length)];
+    }
+
     // İmposter olacak oyuncuları seç.
     const order = shuffle(
       Array.from({ length: players }, (_, i) => i)
@@ -38,9 +47,10 @@ const Game = (() => {
     state = {
       players,
       imposters,
-      imposterSeesCategory,
+      imposterGetsHint,
       category,
       word,
+      hint,
       imposterSet,
       revealIndex: 0,     // sırada rolünü görecek oyuncu
       votedOut: null,     // oylamada elenen oyuncu (index) ya da null
@@ -62,9 +72,9 @@ const Game = (() => {
       playerIndex,
       imposter,
       category: state.category.name,
-      // İmposter kelimeyi görmez; ayara göre kategoriyi görebilir.
+      // İmposter kelimeyi görmez; ayara göre aynı temadan bir ipucu görebilir.
       word: imposter ? null : state.word,
-      showCategory: imposter ? state.imposterSeesCategory : true,
+      hint: imposter ? state.hint : null,
     };
   }
 

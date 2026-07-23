@@ -45,7 +45,8 @@ const UI = (() => {
             <li>Oyuncu ve imposter sayısını seç, kategorileri belirle.</li>
             <li>Telefon sırayla herkese verilir. Herkes kendi kartına bakar:
               çoğu oyuncu <b>gizli kelimeyi</b> görür; imposter ise
-              <b>"SEN İMPOSTER'SİN"</b> yazısını görür.</li>
+              <b>"SEN İMPOSTER'SİN"</b> yazısını görür (kurulumda açtıysanız
+              imposter'a <b>aynı temadan bir ipucu kelimesi</b> de gösterilir).</li>
             <li>Sırayla herkes kelimeyle ilgili <b>tek kelimelik bir ipucu</b> söyler.
               İmposter yakalanmamak için blöf yapar.</li>
             <li>Tartışın ve oylayın. Sonra şüphelendiğiniz kişiyi seçin.</li>
@@ -92,8 +93,8 @@ const UI = (() => {
             </div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="seesCat" ${s.imposterSeesCategory ? 'checked' : ''}>
-            <span>İmposter kategoriyi görsün (kelimeyi değil)</span>
+            <input type="checkbox" id="impHint" ${s.imposterGetsHint ? 'checked' : ''}>
+            <span>İmpostere ipucu ver <em>(aynı temadan bir kelime)</em></span>
           </label>
         </div>
 
@@ -139,14 +140,14 @@ const UI = (() => {
     el('#startBtn').onclick = () => {
       const players = parseInt(el('#players').textContent, 10);
       const imposters = parseInt(el('#imposters').textContent, 10);
-      const imposterSeesCategory = el('#seesCat').checked;
+      const imposterGetsHint = el('#impHint').checked;
       const selIds = els('#catPicker input:checked').map((i) => i.value);
       const chosen = cats.filter((c) => selIds.includes(c.id));
 
       // Ayarları kaydet (bir dahaki sefere hatırlanır).
-      Storage.saveSettings({ players, imposters, imposterSeesCategory, selected: selIds });
+      Storage.saveSettings({ players, imposters, imposterGetsHint, selected: selIds });
 
-      const res = Game.start({ players, imposters, imposterSeesCategory, categories: chosen });
+      const res = Game.start({ players, imposters, imposterGetsHint, categories: chosen });
       if (!res.ok) { el('#err').textContent = res.error; return; }
       reveal();
     };
@@ -179,7 +180,10 @@ const UI = (() => {
       ? `
         <div class="role-tag imposter">SEN İMPOSTER'SİN 🤫</div>
         <p class="role-sub">Kelimeyi bilmiyorsun. Belli etmeden idare et!</p>
-        ${r.showCategory ? `<div class="role-word small">Kategori: ${esc(r.category)}</div>` : ''}
+        ${r.hint ? `
+          <div class="role-hint">💡 İpucu: <b>${esc(r.hint)}</b></div>
+          <p class="role-hint-note">Gizli kelime bu değil — sadece aynı temadan bir örnek.</p>
+        ` : ''}
       `
       : `
         <div class="role-tag crew">Kelime</div>
@@ -303,7 +307,7 @@ const UI = (() => {
       const chosen = selIds && selIds.length ? all.filter((c) => selIds.includes(c.id)) : all;
       const res = Game.start({
         players: s.players, imposters: s.imposters,
-        imposterSeesCategory: s.imposterSeesCategory, categories: chosen,
+        imposterGetsHint: s.imposterGetsHint, categories: chosen,
       });
       if (res.ok) reveal(); else setup();
     };

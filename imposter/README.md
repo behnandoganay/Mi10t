@@ -12,7 +12,9 @@ Saf HTML + CSS + JavaScript. Bağımlılık yok, build yok, görsel/ses dosyası
 1. **Kurulum:** Oyuncu sayısını (3–20), imposter sayısını ve kategorileri seç.
 2. **Rol dağıtımı:** Telefon sırayla herkese verilir. Herkes kendi kartına bakar:
    çoğu oyuncu **gizli kelimeyi** görür, imposter ise **"SEN İMPOSTER'SİN"**
-   yazısını görür (istersen imposter sadece kategoriyi görebilir).
+   yazısını görür. Kurulumda açtıysan imposter'a **aynı temadan bir ipucu
+   kelimesi** de gösterilir (gizli kelime değil, sadece o kategoriden başka bir
+   örnek — ör. gizli kelime "Biber" ise ipucu "Domates" olabilir).
 3. **Tartışma:** Sırayla herkes kelimeyle ilgili **tek kelimelik ipucu** söyler.
    İsteğe bağlı geri sayım sayacı vardır.
 4. **Oylama:** Grup şüphelendiği kişiye dokunur.

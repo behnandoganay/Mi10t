@@ -163,6 +163,16 @@ h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; }
 .role-word { font-size: 40px; font-weight: 900; letter-spacing: -0.02em; }
 .role-word.small { font-size: 18px; font-weight: 700; color: var(--muted); }
 .role-sub { color: var(--muted); font-size: 14px; margin: 0; }
+.role-hint {
+  margin-top: 6px;
+  font-size: 20px; font-weight: 700;
+  color: var(--gold);
+  background: rgba(255, 202, 65, 0.12);
+  border: 1px solid rgba(255, 202, 65, 0.5);
+  padding: 10px 16px; border-radius: 12px;
+}
+.role-hint b { font-weight: 800; }
+.role-hint-note { color: var(--muted); font-size: 12px; margin: 0; opacity: 0.85; }
 
 /* ---------- Tartışma / timer ---------- */
 .timer {
