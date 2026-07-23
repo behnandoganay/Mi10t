@@ -14,6 +14,10 @@ const Game = (() => {
     return a;
   }
 
+  // Bir kelime girdisi ['Kelime','ipucu'] çifti ya da düz 'Kelime' olabilir.
+  function wordOf(entry) { return Array.isArray(entry) ? entry[0] : entry; }
+  function hintOf(entry) { return Array.isArray(entry) && entry[1] ? entry[1] : null; }
+
   // Yeni tur başlat. cfg: { players, imposters, imposterGetsHint, categories:[cat...] }
   // Döner: { ok:true } ya da { ok:false, error:'...' }
   function start(cfg) {
@@ -25,17 +29,25 @@ const Game = (() => {
     if (imposters >= players) return { ok: false, error: 'İmposter sayısı oyuncudan az olmalı.' };
     if (cats.length === 0) return { ok: false, error: 'İçinde kelime olan en az bir kategori seç.' };
 
-    // Kategori ve kelime seç.
+    // Kategori ve kelime (girdi) seç.
     const category = cats[rand(cats.length)];
-    const word = category.words[rand(category.words.length)];
+    const entry = category.words[rand(category.words.length)];
+    const word = wordOf(entry);
 
-    // İmposter ipucu: aynı kategoriden, gizli kelimeden FARKLI rastgele bir kelime.
-    // Böylece imposter temayı sezer ama gerçek kelimeyi bilmez. (Kategoride tek
-    // kelime varsa ipucu verilemez -> null.)
-    let hint = null;
+    // İmposter ipucu:
+    //  1) Kelimenin kendine ait bir ipucu tanımlıysa onu ver (kelimeyi çağrıştıran
+    //     ifade) -> hintType 'clue'.
+    //  2) Tanımlı değilse (ör. ipucusuz özel kategori) aynı kategoriden farklı bir
+    //     kelimeye düş -> hintType 'related'.
+    let hint = null, hintType = null;
     if (imposterGetsHint) {
-      const others = category.words.filter((w) => w !== word);
-      if (others.length > 0) hint = others[rand(others.length)];
+      const own = hintOf(entry);
+      if (own) {
+        hint = own; hintType = 'clue';
+      } else {
+        const others = category.words.map(wordOf).filter((w) => w !== word);
+        if (others.length > 0) { hint = others[rand(others.length)]; hintType = 'related'; }
+      }
     }
 
     // İmposter olacak oyuncuları seç.
@@ -51,6 +63,7 @@ const Game = (() => {
       category,
       word,
       hint,
+      hintType,
       imposterSet,
       revealIndex: 0,     // sırada rolünü görecek oyuncu
       votedOut: null,     // oylamada elenen oyuncu (index) ya da null
@@ -72,9 +85,10 @@ const Game = (() => {
       playerIndex,
       imposter,
       category: state.category.name,
-      // İmposter kelimeyi görmez; ayara göre aynı temadan bir ipucu görebilir.
+      // İmposter kelimeyi görmez; ayara göre kelimeyi çağrıştıran bir ipucu görebilir.
       word: imposter ? null : state.word,
       hint: imposter ? state.hint : null,
+      hintType: imposter ? state.hintType : null,
     };
   }
 

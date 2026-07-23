@@ -12,9 +12,9 @@ Saf HTML + CSS + JavaScript. Bağımlılık yok, build yok, görsel/ses dosyası
 1. **Kurulum:** Oyuncu sayısını (3–20), imposter sayısını ve kategorileri seç.
 2. **Rol dağıtımı:** Telefon sırayla herkese verilir. Herkes kendi kartına bakar:
    çoğu oyuncu **gizli kelimeyi** görür, imposter ise **"SEN İMPOSTER'SİN"**
-   yazısını görür. Kurulumda açtıysan imposter'a **aynı temadan bir ipucu
-   kelimesi** de gösterilir (gizli kelime değil, sadece o kategoriden başka bir
-   örnek — ör. gizli kelime "Biber" ise ipucu "Domates" olabilir).
+   yazısını görür. Kurulumda açtıysan imposter'a **kelimeyi çağrıştıran küçük bir
+   ipucu** gösterilir (kelimenin kendisi değil) — ör. "Buzdolabı" → "soğuk",
+   "Türk kahvesi" → "köpük", "Elma" → "Newton".
 3. **Tartışma:** Sırayla herkes kelimeyle ilgili **tek kelimelik ipucu** söyler.
    İsteğe bağlı geri sayım sayacı vardır.
 4. **Oylama:** Grup şüphelendiği kişiye dokunur.
@@ -23,7 +23,16 @@ Saf HTML + CSS + JavaScript. Bağımlılık yok, build yok, görsel/ses dosyası
 ## Kendi Kategorini Ekle
 
 Ana menüde **Kategoriler → ➕ Yeni Kategori**. Kelimeleri her satıra bir tane
-(ya da virgülle) gir. Eklediğin kategoriler telefonda kalıcı olarak saklanır
+gir. İmposter'a özel ipucu vermek istersen `Kelime | ipucu` biçimini kullan:
+
+```
+Buzdolabı | soğuk
+Elma | Newton
+Türk kahvesi | köpük
+```
+
+İpucu yazmazsan, imposter o kelime için aynı kategoriden başka bir kelimeyi
+ipucu olarak görür. Eklediğin kategoriler telefonda kalıcı olarak saklanır
 (`localStorage`). Hazır kategorileri **Kapat/Aç** ile oyundan çıkarabilir,
 kendi kategorilerini düzenleyip silebilirsin.
 

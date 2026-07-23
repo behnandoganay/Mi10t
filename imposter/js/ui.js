@@ -46,7 +46,8 @@ const UI = (() => {
             <li>Telefon sırayla herkese verilir. Herkes kendi kartına bakar:
               çoğu oyuncu <b>gizli kelimeyi</b> görür; imposter ise
               <b>"SEN İMPOSTER'SİN"</b> yazısını görür (kurulumda açtıysanız
-              imposter'a <b>aynı temadan bir ipucu kelimesi</b> de gösterilir).</li>
+              imposter'a <b>kelimeyi çağrıştıran küçük bir ipucu</b> gösterilir —
+              ör. kelime "Buzdolabı" ise ipucu "soğuk").</li>
             <li>Sırayla herkes kelimeyle ilgili <b>tek kelimelik bir ipucu</b> söyler.
               İmposter yakalanmamak için blöf yapar.</li>
             <li>Tartışın ve oylayın. Sonra şüphelendiğiniz kişiyi seçin.</li>
@@ -182,7 +183,9 @@ const UI = (() => {
         <p class="role-sub">Kelimeyi bilmiyorsun. Belli etmeden idare et!</p>
         ${r.hint ? `
           <div class="role-hint">💡 İpucu: <b>${esc(r.hint)}</b></div>
-          <p class="role-hint-note">Gizli kelime bu değil — sadece aynı temadan bir örnek.</p>
+          <p class="role-hint-note">${r.hintType === 'related'
+            ? 'Gizli kelime bu değil — aynı temadan bir örnek.'
+            : 'Gizli kelimeyi çağrıştıran bir ipucu.'}</p>
         ` : ''}
       `
       : `
@@ -362,7 +365,7 @@ const UI = (() => {
   function editCategory(id) {
     const cat = id ? Storage.findCategory(id) : null;
     const name = cat ? cat.name : '';
-    const words = cat ? cat.words.join('\n') : '';
+    const words = cat ? Storage.wordsToText(cat.words) : '';
     screen(`
       <div class="screen">
         ${backBar(id ? 'Kategoriyi Düzenle' : 'Yeni Kategori')}
@@ -372,9 +375,12 @@ const UI = (() => {
             <input type="text" id="catName" placeholder="Örn: 🎵 Şarkıcılar" value="${esc(name)}">
           </label>
           <label class="field">
-            <span>Kelimeler <em>(her satıra bir tane, ya da virgülle ayır)</em></span>
-            <textarea id="catWords" rows="10" placeholder="Tarkan&#10;Sezen Aksu&#10;Barış Manço">${esc(words)}</textarea>
+            <span>Kelimeler <em>(her satıra bir tane)</em></span>
+            <textarea id="catWords" rows="10" placeholder="Buzdolabı | soğuk&#10;Elma | Newton&#10;Türk kahvesi | köpük">${esc(words)}</textarea>
           </label>
+          <p class="hint">💡 İpucu eklemek için: <b>Kelime | ipucu</b> yaz.
+            İpucu yazmazsan, imposter o kelime için aynı kategoriden başka bir
+            kelimeyi ipucu olarak görür.</p>
           <p class="err" id="err"></p>
           <button class="btn primary big" id="saveCat">💾 Kaydet</button>
         </div>
@@ -384,7 +390,7 @@ const UI = (() => {
     el('#saveCat').onclick = () => {
       const nm = el('#catName').value.trim();
       const wd = el('#catWords').value;
-      const wordCount = wd.split(/[\n,;]+/).map((w) => w.trim()).filter(Boolean).length;
+      const wordCount = Storage.cleanWords(wd).length;
       if (!nm) { el('#err').textContent = 'Kategori adı gir.'; return; }
       if (wordCount < 2) { el('#err').textContent = 'En az 2 kelime gir.'; return; }
       if (id) Storage.updateCategory(id, nm, wd);
