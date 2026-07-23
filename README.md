@@ -1,3 +1,14 @@
+# Mi10t — Oyunlar 🎮
+
+Bu depoda bağımlılıksız, saf HTML/CSS/JS ile yazılmış mobil oyunlar var:
+
+- **[Uzay Savaşçısı](#uzay-savaşçısı-)** — Warblade/Galaga tarzı uzay shooter (kök dizin).
+- **[Aramızdaki İmposter](imposter/)** — Tek telefonla oynanan "Aramızdaki Hain"
+  parti oyunu; tüm kategoriler açık, kendi kategorini de ekleyebilirsin.
+  → `imposter/` klasörü, detaylar için [imposter/README.md](imposter/README.md).
+
+---
+
 # Uzay Savaşçısı 🚀
 
 Warblade / Galaga tarzı, mobil için tasarlanmış bir uzay shooter oyunu.
