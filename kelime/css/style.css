@@ -122,6 +122,28 @@ h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; }
 }
 .field input:focus { outline: none; border-color: var(--primary); background: var(--card); }
 
+/* ---------- Üst bar / online ekranlar ---------- */
+.bar-title { font-size: 20px; margin: 0; }
+.round.back { font-size: 26px; line-height: 1; }
+.room-code {
+  font-size: 52px; font-weight: 900; letter-spacing: 0.18em;
+  color: var(--primary-d); font-variant-numeric: tabular-nums;
+}
+.join-row { display: flex; gap: 10px; }
+.join-row .btn { flex: 1; width: auto; }
+#join-code {
+  flex: 0 0 110px; min-width: 0; text-align: center;
+  font-size: 22px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: var(--bg2); border: 1px solid var(--line);
+  color: var(--text); font-family: inherit;
+  padding: 10px; border-radius: 12px;
+  -webkit-user-select: text; user-select: text;
+}
+#join-code:focus { outline: none; border-color: var(--primary); background: var(--card); }
+#word-input:disabled { opacity: 0.55; background: var(--bg2); }
+.btn:disabled { opacity: 0.6; }
+
 /* ---------- Skor barı ---------- */
 .scorebar { display: flex; align-items: center; gap: 10px; }
 .pscore {

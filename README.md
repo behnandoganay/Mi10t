@@ -7,13 +7,15 @@ Bu depoda bağımlılıksız, saf HTML/CSS/JS ile yazılmış mobil oyunlar var:
   parti oyunu; tüm kategoriler açık, kendi kategorini de ekleyebilirsin.
   → `imposter/` klasörü, detaylar için [imposter/README.md](imposter/README.md).
 - **[Kelime Türetmece](kelime/)** — Klasik kelime zinciri: son harften yeni
-  kelime türet, 10 saniyede bulamayan kaybeder. Tek telefonda 2 kişi, gömülü
-  ~48 bin kelimelik Türkçe sözlük, krem tonlu açık tema. PWA: bir kez açınca
-  tamamen **çevrimdışı** oynanabilir, ana ekrana eklenebilir.
+  kelime türet, 10 saniyede bulamayan kaybeder. Tek telefonda 2 kişi **veya
+  iki telefonla online** (oda koduyla, WebRTC/P2P). Gömülü ~48 bin kelimelik
+  Türkçe sözlük, krem tonlu açık tema. PWA: bir kez açınca yerel mod tamamen
+  **çevrimdışı** oynanabilir, ana ekrana eklenebilir.
   → `kelime/` klasörü, detaylar için [kelime/README.md](kelime/README.md).
 
-Depo, `main` dalına her push'ta GitHub Pages'a otomatik yayınlanır
-(`.github/workflows/pages.yml`): `https://<kullanıcı>.github.io/Mi10t/`.
+Depo, GitHub Pages ile yayınlanır (Settings → Pages, "Deploy from a branch"):
+`https://<kullanıcı>.github.io/Mi10t/`. Kaynak dalın `main` seçilmesi önerilir;
+böylece site her merge'de kendiliğinden güncellenir.
 
 ---
 
