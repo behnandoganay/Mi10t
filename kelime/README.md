@@ -1,7 +1,22 @@
 # Kelime Türetmece 🔤
 
-Klasik kelime zinciri oyununun mobil sürümü. Tek telefonda 2 kişi, karşılıklı
-oynanır. Saf HTML/CSS/JS — bağımlılık yok, krem tonlu açık tema.
+Klasik kelime zinciri oyununun mobil sürümü. İki mod: **tek telefonda** elden
+ele, ya da **iki telefonla online**. Saf HTML/CSS/JS, krem tonlu açık tema.
+
+## Online Mod (İki Telefon)
+
+- Bir telefon **Oda Kur** der ve 4 harflik oda kodu alır; diğer telefon
+  **Odaya Katıl**'a kodu girer.
+- Bağlantı WebRTC ile **telefondan telefona** kurulur
+  ([PeerJS](https://github.com/peerjs/peerjs) v1.5.4, MIT — `js/vendor/`
+  altında vendor'lanmıştır). PeerJS'in ücretsiz genel sinyal sunucusu yalnızca
+  eşleşme için kullanılır; kelimeler doğrudan cihazlar arasında gider, hiçbir
+  sunucuda saklanmaz.
+- Süre kararı her zaman sırası gelen telefondadır — ağ gecikmesi haksız
+  yenilgi üretmez. El sonunda iki taraf da "Tekrar Oyna" derse yeni el başlar.
+- Not: Bazı operatör ağlarında (katı NAT) P2P kurulamayabilir; iki telefonu
+  aynı Wi-Fi'ye bağlamak her zaman çalışır. Online mod internet ister; yerel
+  mod tamamen çevrimdışıdır.
 
 ## Çevrimdışı Oynama (PWA)
 
@@ -50,15 +65,17 @@ dosyasını doğrudan açmak da çalışır (build gerekmez).
 ## Dosya Yapısı
 
 ```
-index.html           — Giriş noktası
-manifest.webmanifest — PWA manifesti (ana ekrana ekleme)
-sw.js                — Service worker: çevrimdışı önbellek
-icon-192/512.png     — Uygulama simgeleri
-css/style.css        — Mobil öncelikli krem/açık tema
-js/words.js          — Gömülü Türkçe kelime listesi (Set)
-js/game.js           — Saf oyun mantığı: doğrulama, sıra, ğ kuralı, skor
-js/timer.js          — requestAnimationFrame ile 10 sn geri sayım
-js/audio.js          — Web Audio ile sentez sesler
-js/ui.js             — Ekranlar ve DOM güncellemeleri
-js/main.js           — Başlatma + service worker kaydı
+index.html             — Giriş noktası
+manifest.webmanifest   — PWA manifesti (ana ekrana ekleme)
+sw.js                  — Service worker: çevrimdışı önbellek
+icon-192/512.png       — Uygulama simgeleri
+css/style.css          — Mobil öncelikli krem/açık tema
+js/words.js            — Gömülü Türkçe kelime listesi (Set)
+js/game.js             — Saf oyun mantığı: doğrulama, sıra, ğ kuralı, skor
+js/net.js              — Online mod: PeerJS sarmalayıcı (oda kur/katıl, mesajlar)
+js/vendor/peerjs.min.js— PeerJS v1.5.4 (MIT, vendor)
+js/timer.js            — requestAnimationFrame ile 10 sn geri sayım
+js/audio.js            — Web Audio ile sentez sesler
+js/ui.js               — Ekranlar, mod akışları, DOM güncellemeleri
+js/main.js             — Başlatma + service worker kaydı
 ```
