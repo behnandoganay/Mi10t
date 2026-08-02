@@ -13,8 +13,9 @@ Bu depoda bağımlılıksız, saf HTML/CSS/JS ile yazılmış mobil oyunlar var:
   **çevrimdışı** oynanabilir, ana ekrana eklenebilir.
   → `kelime/` klasörü, detaylar için [kelime/README.md](kelime/README.md).
 
-Depo, `main` dalına her push'ta GitHub Pages'a otomatik yayınlanır
-(`.github/workflows/pages.yml`): `https://<kullanıcı>.github.io/Mi10t/`.
+Depo, GitHub Pages ile yayınlanır (Settings → Pages, "Deploy from a branch"):
+`https://<kullanıcı>.github.io/Mi10t/`. Kaynak dalın `main` seçilmesi önerilir;
+böylece site her merge'de kendiliğinden güncellenir.
 
 ---
 
