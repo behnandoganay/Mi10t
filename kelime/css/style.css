@@ -1,0 +1,248 @@
+/* style.css — Mobil öncelikli koyu tema. Bağımlılık yok. */
+
+:root {
+  --bg: #0b0f1a;
+  --bg2: #131a2c;
+  --card: #1a2237;
+  --card2: #222c47;
+  --line: #2d3856;
+  --text: #eef2ff;
+  --muted: #93a0c4;
+  --primary: #6c8cff;
+  --primary-d: #4d6ef0;
+  --p1: #6c8cff;   /* 1. oyuncu — mavi */
+  --p2: #ffb03a;   /* 2. oyuncu — turuncu */
+  --win: #35d29a;
+  --lose: #ff6b6b;
+  --gold: #ffca41;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #1c2748 0%, transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.screen { display: flex; flex-direction: column; gap: 16px; }
+
+/* ---------- Tipografi ---------- */
+h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+
+.logo {
+  text-align: center;
+  font-size: 34px;
+  line-height: 1.1;
+  margin-top: 24px;
+}
+.logo span {
+  color: var(--gold);
+  font-size: 44px;
+  text-shadow: 0 0 24px rgba(255, 202, 65, 0.4);
+}
+.tagline { text-align: center; color: var(--muted); font-size: 15px; margin: 4px 8px 0; line-height: 1.5; }
+.foot { text-align: center; color: var(--muted); font-size: 12px; opacity: 0.8; margin-top: 8px; }
+
+/* ---------- Butonlar ---------- */
+.btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  padding: 15px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.06s ease, filter 0.15s ease;
+  width: 100%;
+}
+.btn:active { transform: scale(0.98); }
+.btn.primary { background: linear-gradient(180deg, var(--primary), var(--primary-d)); border: none; }
+.btn.primary:active { filter: brightness(1.05); }
+.btn.big { font-size: 19px; padding: 18px; }
+.btn.ghost { background: transparent; }
+.btn em { font-style: normal; font-weight: 600; font-size: 14px; opacity: 0.8; }
+.menu { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+
+.round {
+  min-width: 44px; height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card2);
+  color: var(--muted);
+  font-size: 20px; font-weight: 800;
+  cursor: pointer; padding: 0 12px;
+  flex: none;
+}
+.round:active { transform: scale(0.95); }
+
+/* ---------- Kartlar ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.card.prose { gap: 12px; }
+.prose p, .prose li { color: var(--muted); line-height: 1.6; font-size: 15px; }
+.prose b { color: var(--text); }
+.prose ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.err { color: var(--lose); font-size: 14px; text-align: center; min-height: 18px; margin: 0; }
+
+/* ---------- Form alanları ---------- */
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field > span { font-size: 14px; color: var(--muted); font-weight: 600; }
+.field input {
+  width: 100%;
+  background: var(--bg2); border: 1px solid var(--line);
+  color: var(--text); font-size: 16px; font-family: inherit;
+  padding: 14px; border-radius: 12px;
+  -webkit-user-select: text; user-select: text;
+}
+.field input:focus { outline: none; border-color: var(--primary); }
+
+/* ---------- Skor barı ---------- */
+.scorebar { display: flex; align-items: center; gap: 10px; }
+.pscore {
+  flex: 1;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 10px 12px;
+  font-size: 15px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  opacity: 0.55; transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.pscore b { font-size: 17px; }
+.pscore.p2 { text-align: right; }
+.pscore.p1 b { color: var(--p1); }
+.pscore.p2 b { color: var(--p2); }
+.pscore.active { opacity: 1; }
+.pscore.p1.active { border-color: var(--p1); }
+.pscore.p2.active { border-color: var(--p2); }
+
+/* ---------- Sıra bandı ---------- */
+.turn-banner {
+  text-align: center; font-size: 18px; font-weight: 800;
+  padding: 10px; border-radius: 12px;
+}
+.turn-banner.p1 { background: rgba(108, 140, 255, 0.16); color: var(--p1); }
+.turn-banner.p2 { background: rgba(255, 176, 58, 0.16); color: var(--p2); }
+
+/* ---------- Kelime kartı ---------- */
+.word-card { align-items: center; text-align: center; gap: 8px; padding: 16px; }
+.prev-label { color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.prev-word { font-size: 36px; font-weight: 900; letter-spacing: 0.01em; word-break: break-all; }
+.prev-word .hot { color: var(--gold); text-shadow: 0 0 18px rgba(255, 202, 65, 0.5); }
+.need { color: var(--muted); font-size: 15px; }
+.need-letter {
+  display: inline-block; min-width: 34px;
+  font-size: 22px; font-weight: 900; color: var(--text);
+  background: var(--card2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 2px 8px; margin-right: 4px;
+}
+.need-letter.p1 { color: var(--p1); border-color: var(--p1); }
+.need-letter.p2 { color: var(--p2); border-color: var(--p2); }
+.badge.free {
+  display: inline-block;
+  background: rgba(53, 210, 154, 0.15); color: var(--win);
+  border: 1px solid var(--win); border-radius: 999px;
+  padding: 6px 14px; font-size: 14px; font-weight: 700;
+}
+
+/* ---------- Sayaç ---------- */
+.timer-wrap { position: relative; width: 116px; height: 116px; margin: 0 auto; }
+.timer-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--card2); stroke-width: 9; }
+.ring {
+  fill: none; stroke: var(--primary); stroke-width: 9; stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
+.ring.danger { stroke: var(--lose); }
+.timer-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.timer-num.danger { color: var(--lose); }
+
+/* ---------- Kelime girişi ---------- */
+#word-form { display: flex; gap: 10px; }
+#word-form .btn { flex: 0 0 auto; width: auto; }
+#word-input {
+  flex: 1; min-width: 0;
+  background: var(--bg2); border: 1px solid var(--line);
+  color: var(--text); font-size: 18px; font-family: inherit;
+  padding: 14px; border-radius: 14px;
+  -webkit-user-select: text; user-select: text;
+}
+#word-input:focus { outline: none; border-color: var(--primary); }
+#word-input.shake { animation: shake 0.35s ease; border-color: var(--lose); }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+
+/* ---------- Zincir şeridi ---------- */
+.chain-strip {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding-bottom: 4px; -webkit-overflow-scrolling: touch;
+}
+.chip-word {
+  flex: none; font-size: 14px; font-weight: 700;
+  background: var(--bg2); border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 12px; color: var(--muted);
+}
+.chip-word.p1 { color: var(--p1); border-color: rgba(108, 140, 255, 0.45); }
+.chip-word.p2 { color: var(--p2); border-color: rgba(255, 176, 58, 0.45); }
+
+/* ---------- El sonu ---------- */
+.verdict {
+  text-align: center; font-size: 22px; font-weight: 800;
+  padding: 18px; border-radius: 16px; margin-top: 12px;
+}
+.verdict.p1 { background: rgba(108, 140, 255, 0.15); color: var(--p1); border: 1px solid var(--p1); }
+.verdict.p2 { background: rgba(255, 176, 58, 0.15); color: var(--p2); border: 1px solid var(--p2); }
+.lose-detail { text-align: center; color: var(--muted); font-size: 15px; margin: 0; line-height: 1.5; }
+
+.score-card { gap: 8px; }
+.result-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 16px; padding: 6px 0; border-bottom: 1px solid var(--line);
+}
+.result-row:last-child { border-bottom: none; }
+.result-row b { font-size: 20px; }
+.pname.p1 { color: var(--p1); font-weight: 700; }
+.pname.p2 { color: var(--p2); font-weight: 700; }
+
+.chain-list {
+  margin: 0; padding-left: 22px;
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 40vh; overflow-y: auto;
+}
+.chain-list li { font-size: 16px; font-weight: 700; }
+.chain-list li .who {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  display: inline-block; min-width: 84px;
+}
+.chain-list li.p1 { color: var(--p1); }
+.chain-list li.p2 { color: var(--p2); }

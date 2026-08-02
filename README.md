@@ -6,6 +6,10 @@ Bu depoda bağımlılıksız, saf HTML/CSS/JS ile yazılmış mobil oyunlar var:
 - **[Aramızdaki İmposter](imposter/)** — Tek telefonla oynanan "Aramızdaki Hain"
   parti oyunu; tüm kategoriler açık, kendi kategorini de ekleyebilirsin.
   → `imposter/` klasörü, detaylar için [imposter/README.md](imposter/README.md).
+- **[Kelime Türetmece](kelime/)** — Klasik kelime zinciri: son harften yeni
+  kelime türet, 10 saniyede bulamayan kaybeder. Tek telefonda 2 kişi, gömülü
+  ~48 bin kelimelik Türkçe sözlükle çevrimdışı doğrulama.
+  → `kelime/` klasörü, detaylar için [kelime/README.md](kelime/README.md).
 
 ---
 
