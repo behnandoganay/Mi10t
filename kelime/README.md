@@ -1,7 +1,16 @@
 # Kelime Türetmece 🔤
 
 Klasik kelime zinciri oyununun mobil sürümü. Tek telefonda 2 kişi, karşılıklı
-oynanır. Saf HTML/CSS/JS — bağımlılık yok, tamamen çevrimdışı çalışır.
+oynanır. Saf HTML/CSS/JS — bağımlılık yok, krem tonlu açık tema.
+
+## Çevrimdışı Oynama (PWA)
+
+Oyun bir PWA'dır: sayfayı bir kez açtıktan sonra service worker tüm dosyaları
+(sözlük dahil) önbelleğe alır ve oyun **internetsiz** çalışır.
+
+- Telefonda tarayıcı menüsünden **"Ana ekrana ekle"** dersen oyun, kendi
+  simgesiyle tam ekran bir uygulama gibi açılır.
+- Uçakta, metroda, internetsiz her yerde oynanabilir.
 
 ## Kurallar
 
@@ -41,12 +50,15 @@ dosyasını doğrudan açmak da çalışır (build gerekmez).
 ## Dosya Yapısı
 
 ```
-index.html      — Giriş noktası
-css/style.css   — Mobil öncelikli koyu tema
-js/words.js     — Gömülü Türkçe kelime listesi (Set)
-js/game.js      — Saf oyun mantığı: doğrulama, sıra, ğ kuralı, skor
-js/timer.js     — requestAnimationFrame ile 10 sn geri sayım
-js/audio.js     — Web Audio ile sentez sesler
-js/ui.js        — Ekranlar ve DOM güncellemeleri
-js/main.js      — Başlatma
+index.html           — Giriş noktası
+manifest.webmanifest — PWA manifesti (ana ekrana ekleme)
+sw.js                — Service worker: çevrimdışı önbellek
+icon-192/512.png     — Uygulama simgeleri
+css/style.css        — Mobil öncelikli krem/açık tema
+js/words.js          — Gömülü Türkçe kelime listesi (Set)
+js/game.js           — Saf oyun mantığı: doğrulama, sıra, ğ kuralı, skor
+js/timer.js          — requestAnimationFrame ile 10 sn geri sayım
+js/audio.js          — Web Audio ile sentez sesler
+js/ui.js             — Ekranlar ve DOM güncellemeleri
+js/main.js           — Başlatma + service worker kaydı
 ```
