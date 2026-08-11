@@ -116,7 +116,8 @@ const Storage = (() => {
     return read(K_SETTINGS, {
       players: 4,
       imposters: 1,
-      imposterGetsHint: true, // imposter aynı temadan bir ipucu kelimesi görsün mü
+      imposterGetsHint: true, // imposter kelimeyi çağrıştıran tek kelimelik ipucu görsün mü
+      names: [],      // oyuncu isimleri (boşlar "Oyuncu N" olur)
       selected: null, // null => tüm açık kategoriler
     });
   }

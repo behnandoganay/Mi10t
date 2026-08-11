@@ -56,6 +56,12 @@ const Game = (() => {
     );
     const imposterSet = new Set(order.slice(0, imposters));
 
+    // Oyuncu isimleri: verilmemiş/boş olanlara "Oyuncu N" denir.
+    const names = Array.from({ length: players }, (_, i) => {
+      const n = cfg.names && cfg.names[i] ? String(cfg.names[i]).trim() : '';
+      return n || 'Oyuncu ' + (i + 1);
+    });
+
     state = {
       players,
       imposters,
@@ -64,6 +70,7 @@ const Game = (() => {
       word,
       hint,
       hintType,
+      names,
       imposterSet,
       revealIndex: 0,     // sırada rolünü görecek oyuncu
       votedOut: null,     // oylamada elenen oyuncu (index) ya da null
@@ -83,6 +90,7 @@ const Game = (() => {
     const imposter = isImposter(playerIndex);
     return {
       playerIndex,
+      name: state.names[playerIndex],
       imposter,
       category: state.category.name,
       // İmposter kelimeyi görmez; ayara göre kelimeyi çağrıştıran bir ipucu görebilir.
@@ -112,6 +120,7 @@ const Game = (() => {
     const caughtImposter = state.votedOut != null && state.imposterSet.has(state.votedOut);
     return {
       imposters,
+      names: state.names,
       word: state.word,
       category: state.category.name,
       votedOut: state.votedOut,

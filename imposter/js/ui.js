@@ -95,8 +95,13 @@ const UI = (() => {
           </div>
           <label class="toggle">
             <input type="checkbox" id="impHint" ${s.imposterGetsHint ? 'checked' : ''}>
-            <span>İmpostere ipucu ver <em>(aynı temadan bir kelime)</em></span>
+            <span>İmpostere ipucu ver <em>(kelimeyi çağrıştıran tek kelime)</em></span>
           </label>
+        </div>
+
+        <div class="card">
+          <b>Oyuncular</b>
+          <div class="name-list" id="nameList"></div>
         </div>
 
         <div class="card">
@@ -125,12 +130,26 @@ const UI = (() => {
     bindBack(home);
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+    // İsim alanları: oyuncu sayısı kadar kutu; yazılanlar sayı değişince korunur.
+    const savedNames = Array.isArray(s.names) ? s.names : [];
+    const currentNames = () => els('.name-inp').map((i) => i.value);
+    const renderNames = (count, keep) => {
+      const vals = keep || savedNames;
+      el('#nameList').innerHTML = Array.from({ length: count }, (_, i) => `
+        <input type="text" class="name-inp" maxlength="20"
+          placeholder="Oyuncu ${i + 1}" value="${esc(vals[i] || '')}">
+      `).join('');
+    };
+    renderNames(s.players);
+
     const step = (key, delta) => {
       const node = el('#' + key);
       let v = parseInt(node.textContent, 10) + delta;
       if (key === 'players') v = clamp(v, 3, 20);
       if (key === 'imposters') v = clamp(v, 1, 9);
       node.textContent = v;
+      if (key === 'players') renderNames(v, currentNames());
     };
     els('[data-inc]').forEach((b) => (b.onclick = () => step(b.dataset.inc, 1)));
     els('[data-dec]').forEach((b) => (b.onclick = () => step(b.dataset.dec, -1)));
@@ -142,13 +161,14 @@ const UI = (() => {
       const players = parseInt(el('#players').textContent, 10);
       const imposters = parseInt(el('#imposters').textContent, 10);
       const imposterGetsHint = el('#impHint').checked;
+      const names = currentNames().map((n) => n.trim());
       const selIds = els('#catPicker input:checked').map((i) => i.value);
       const chosen = cats.filter((c) => selIds.includes(c.id));
 
       // Ayarları kaydet (bir dahaki sefere hatırlanır).
-      Storage.saveSettings({ players, imposters, imposterGetsHint, selected: selIds });
+      Storage.saveSettings({ players, imposters, imposterGetsHint, selected: selIds, names });
 
-      const res = Game.start({ players, imposters, imposterGetsHint, categories: chosen });
+      const res = Game.start({ players, imposters, imposterGetsHint, names, categories: chosen });
       if (!res.ok) { el('#err').textContent = res.error; return; }
       reveal();
     };
@@ -159,13 +179,13 @@ const UI = (() => {
     const g = Game.get();
     const idx = g.revealIndex;
 
-    // "Telefonu N. oyuncuya ver" ara ekranı.
+    // "Telefonu sıradaki oyuncuya ver" ara ekranı.
     screen(`
       <div class="screen center">
         <div class="pass">
           <div class="pass-icon">📲</div>
           <h2>Telefonu ver:</h2>
-          <div class="pass-player">Oyuncu ${idx + 1}</div>
+          <div class="pass-player">${esc(g.names[idx])}</div>
           <p class="hint">Kimse bakmasın! Hazır olunca kartını aç.</p>
           <button class="btn primary big" id="showCard">Kartımı Gör</button>
         </div>
@@ -197,7 +217,7 @@ const UI = (() => {
     screen(`
       <div class="screen center">
         <div class="card role-card ${isImp ? 'imp' : 'crew'}">
-          <div class="role-who">Oyuncu ${idx + 1}</div>
+          <div class="role-who">${esc(r.name)}</div>
           ${body}
         </div>
         <button class="btn primary big" id="hideCard">Gizle &amp; Sıradaki ▶</button>
@@ -260,7 +280,7 @@ const UI = (() => {
         </div>
         <div class="vote-grid">
           ${Array.from({ length: g.players }, (_, i) => `
-            <button class="vote-btn" data-p="${i}">Oyuncu ${i + 1}</button>
+            <button class="vote-btn" data-p="${i}">${esc(g.names[i])}</button>
           `).join('')}
         </div>
         <button class="btn ghost" id="skipVote">Kimse — Direkt Açıkla</button>
@@ -277,7 +297,7 @@ const UI = (() => {
   // ===================== SONUÇ =====================
   function result() {
     const r = Game.result();
-    const impNames = r.imposters.map((i) => `Oyuncu ${i + 1}`).join(', ');
+    const impNames = r.imposters.map((i) => r.names[i]).join(', ');
     let banner;
     if (r.votedOut == null) {
       banner = `<div class="verdict neutral">İmposter açıklanıyor…</div>`;
@@ -295,7 +315,7 @@ const UI = (() => {
           <div class="result-row"><span>Kategori</span><b>${esc(r.category)}</b></div>
           <div class="result-row"><span>İmposter${r.imposters.length > 1 ? 'lar' : ''}</span>
             <b class="imp-name">${esc(impNames)}</b></div>
-          ${r.votedOut != null ? `<div class="result-row"><span>Elenen</span><b>Oyuncu ${r.votedOut + 1}</b></div>` : ''}
+          ${r.votedOut != null ? `<div class="result-row"><span>Elenen</span><b>${esc(r.names[r.votedOut])}</b></div>` : ''}
         </div>
         <button class="btn primary big" id="again">🔄 Tekrar Oyna</button>
         <button class="btn" id="toHome">🏠 Ana Menü</button>
@@ -310,7 +330,7 @@ const UI = (() => {
       const chosen = selIds && selIds.length ? all.filter((c) => selIds.includes(c.id)) : all;
       const res = Game.start({
         players: s.players, imposters: s.imposters,
-        imposterGetsHint: s.imposterGetsHint, categories: chosen,
+        imposterGetsHint: s.imposterGetsHint, names: s.names, categories: chosen,
       });
       if (res.ok) reveal(); else setup();
     };

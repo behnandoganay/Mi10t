@@ -221,6 +221,17 @@ h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; }
 .cat-buttons { display: flex; gap: 8px; flex: none; }
 .toggle-on { font-size: 13px; font-weight: 700; }
 
+/* ---------- Oyuncu isimleri ---------- */
+.name-list { display: flex; flex-direction: column; gap: 8px; }
+.name-inp {
+  width: 100%;
+  background: var(--bg2); border: 1px solid var(--line);
+  color: var(--text); font-size: 16px; font-family: inherit;
+  padding: 12px 14px; border-radius: 12px;
+  -webkit-user-select: text; user-select: text;
+}
+.name-inp:focus { outline: none; border-color: var(--primary); }
+
 /* ---------- Form alanları ---------- */
 .field { display: flex; flex-direction: column; gap: 8px; }
 .field > span { font-size: 14px; color: var(--muted); font-weight: 600; }
