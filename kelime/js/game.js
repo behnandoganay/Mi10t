@@ -1,7 +1,7 @@
 // game.js — Saf oyun mantığı: doğrulama, sıra, ğ kuralı, skor. DOM'a dokunmaz.
 
 const Game = (() => {
-  const TURN_SECONDS = 10;
+  const DEFAULT_TURN_SECONDS = 10;
   const VALID = /^[abcçdefgğhıijklmnoöprsştuüvyz]+$/;
 
   // Kullanıcı şapkalı yazarsa sözlükteki şapkasız halle eşleşsin (kâğıt → kağıt).
@@ -18,9 +18,11 @@ const Game = (() => {
 
   let state = null;
 
-  function newMatch(names) {
+  // turnSeconds: saniye cinsinden tur süresi; null → süresiz (tur sadece pes ile biter).
+  function newMatch(names, turnSeconds) {
     state = {
       players: names,
+      turnSeconds: turnSeconds === null ? null : (Number(turnSeconds) || DEFAULT_TURN_SECONDS),
       scores: [0, 0],
       round: 0,
       current: 0,
@@ -30,6 +32,7 @@ const Game = (() => {
       freeBecauseGh: false,
       phase: 'playing',
       winner: null,
+      loseReason: null, // 'timeout' | 'giveup'
     };
     newRound();
     return state;
@@ -46,6 +49,7 @@ const Game = (() => {
     state.freeBecauseGh = false;
     state.phase = 'playing';
     state.winner = null;
+    state.loseReason = null;
     return state;
   }
 
@@ -76,22 +80,27 @@ const Game = (() => {
     return { ok: true, word: w };
   }
 
-  // Süre doldu: sırası gelen kaybeder.
-  function timeout() {
+  // Sırası gelen eli kaybeder (süre doldu ya da pes etti).
+  function endRound(reason) {
     state.phase = 'over';
+    state.loseReason = reason;
     state.winner = 1 - state.current;
     state.scores[state.winner] += 1;
     return state;
   }
 
+  const timeout = () => endRound('timeout');
+  const giveUp = () => endRound('giveup');
+
   return {
-    TURN_SECONDS,
+    DEFAULT_TURN_SECONDS,
     normalize,
     upper,
     newMatch,
     newRound,
     submitWord,
     timeout,
+    giveUp,
     get state() { return state; },
   };
 })();

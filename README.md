@@ -7,7 +7,8 @@ Bu depoda bağımlılıksız, saf HTML/CSS/JS ile yazılmış mobil oyunlar var:
   parti oyunu; tüm kategoriler açık, kendi kategorini de ekleyebilirsin.
   → `imposter/` klasörü, detaylar için [imposter/README.md](imposter/README.md).
 - **[Kelime Türetmece](kelime/)** — Klasik kelime zinciri: son harften yeni
-  kelime türet, 10 saniyede bulamayan kaybeder. Tek telefonda 2 kişi **veya
+  kelime türet, seçilen sürede (5–30 sn ya da süresiz) bulamayan kaybeder.
+  Tek telefonda 2 kişi **veya
   iki telefonla online** (oda koduyla, WebRTC/P2P). Gömülü ~48 bin kelimelik
   Türkçe sözlük, krem tonlu açık tema. PWA: bir kez açınca yerel mod tamamen
   **çevrimdışı** oynanabilir, ana ekrana eklenebilir.

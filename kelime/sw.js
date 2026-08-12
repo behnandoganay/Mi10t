@@ -1,7 +1,7 @@
 // sw.js — Çevrimdışı oyun için service worker: tüm dosyalar önden önbelleğe alınır.
 // Göreli yollar, oyunun /kelime/ gibi bir alt yolda yayınlanmasıyla uyumludur.
 
-const CACHE = 'kelime-v2';
+const CACHE = 'kelime-v3';
 const ASSETS = [
   './',
   'index.html',

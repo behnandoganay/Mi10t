@@ -35,7 +35,10 @@ Oyun bir PWA'dır: sayfayı bir kez açtıktan sonra service worker tüm dosyala
 3. Kelime geçerli sayılır ⇔ doğru harfle başlıyor, sözlükte var, bu elde daha
    önce kullanılmamış ve en az 2 harfli.
 4. Geçersiz kelimede süre **işlemeye devam eder**, tekrar denenebilir.
-5. **10 saniyede** kelime bulamayan eli kaybeder; rakip 1 puan alır.
+5. **Seçilen sürede** (5/10/15/20/30 sn) kelime bulamayan eli kaybeder; rakip
+   1 puan alır. **Süresiz** modda süre yoktur — eli, "🏳️ Pes Et" diyen kaybeder.
+   Tur süresi başlangıç ekranından seçilir (varsayılan 10 sn, seçim hatırlanır);
+   online modda süreyi **oda kuran** belirler.
 6. Türkçede hiçbir kelime **ğ** ile başlamadığı için, kelime ğ ile biterse
    (dağ, bağ...) sıradaki oyuncu **istediği harfle** başlayabilir.
 7. Yeni eli bir önceki elin kaybedeni başlatır. Skor, sayfa açık kaldığı sürece
