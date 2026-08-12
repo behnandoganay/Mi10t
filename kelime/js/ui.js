@@ -26,6 +26,34 @@ const UI = (() => {
   }
   function bindBack(fn) { el('[data-back]').onclick = fn; }
 
+  // ---- Tur süresi seçimi (0 → süresiz) ----
+  const TIME_OPTIONS = [5, 10, 15, 20, 30, 0];
+  function timeLabel(v) { return v === 0 ? 'Süresiz' : `${v} sn`; }
+  function savedTurnChoice() {
+    const v = parseInt(localStorage.getItem('kelime-turn') || '', 10);
+    return TIME_OPTIONS.includes(v) ? v : Game.DEFAULT_TURN_SECONDS;
+  }
+  function timePickerHTML() {
+    const sel = savedTurnChoice();
+    return `
+      <div class="field">
+        <span>Tur süresi</span>
+        <div class="time-picker">
+          ${TIME_OPTIONS.map((v) => `
+            <label class="chip">
+              <input type="radio" name="turn-time" value="${v}" ${v === sel ? 'checked' : ''}>
+              <span>${v === 0 ? '♾️ ' : ''}${timeLabel(v)}</span>
+            </label>`).join('')}
+        </div>
+      </div>`;
+  }
+  function readTimePicker() {
+    const v = parseInt(root.querySelector('input[name="turn-time"]:checked').value, 10);
+    localStorage.setItem('kelime-turn', String(v));
+    return v; // 0 → süresiz
+  }
+  const toTurnSeconds = (v) => (v === 0 ? null : v);
+
   function leaveOnline() {
     if (online) { Net.send({ type: 'bye' }); Net.destroy(); online = null; }
   }
@@ -53,7 +81,8 @@ const UI = (() => {
               yazar (araç → <b>ç</b>ay → <b>y</b>...).</li>
             <li>Her kelime bir kez kullanılır ve sözlükte olmalıdır.</li>
             <li>Kelime <b>ğ</b> ile biterse sıradaki istediği harfle başlar.</li>
-            <li><b>10 saniyede</b> kelime bulamayan eli kaybeder.</li>
+            <li>Seçilen sürede (<b>5–30 sn</b>) kelime bulamayan eli kaybeder.
+              <b>Süresiz</b> modda süre yoktur; pes eden kaybeder.</li>
           </ol>
         </div>
         <p class="foot">Tamamen çevrimdışı oynanabilir (yerel mod) · ~48 bin kelimelik Türkçe sözlük</p>
@@ -77,6 +106,7 @@ const UI = (() => {
             <span>2. Oyuncu</span>
             <input id="name2" type="text" maxlength="14" placeholder="Oyuncu 2" autocomplete="off">
           </label>
+          ${timePickerHTML()}
           <button class="btn primary big" id="start">🎮 Başla</button>
         </div>
       </div>
@@ -86,7 +116,7 @@ const UI = (() => {
       const n1 = el('#name1').value.trim() || 'Oyuncu 1';
       const n2 = el('#name2').value.trim() || 'Oyuncu 2';
       online = null;
-      Game.newMatch([n1, n2]);
+      Game.newMatch([n1, n2], toTurnSeconds(readTimePicker()));
       game();
     };
   }
@@ -101,6 +131,7 @@ const UI = (() => {
             <span>Adın</span>
             <input id="my-name" type="text" maxlength="14" placeholder="Adını yaz" autocomplete="off">
           </label>
+          ${timePickerHTML()}
           <button class="btn primary big" id="host">🏠 Oda Kur</button>
           <div class="join-row">
             <input id="join-code" type="text" maxlength="4" placeholder="KOD"
@@ -121,7 +152,7 @@ const UI = (() => {
     if (!navigator.onLine) el('#err').textContent = 'İnternet bağlantısı yok — online mod için internet gerekli.';
 
     const myName = () => el('#my-name').value.trim() || 'Oyuncu';
-    el('#host').onclick = () => hostRoom(myName());
+    el('#host').onclick = () => hostRoom(myName(), readTimePicker());
     el('#join').onclick = () => {
       const code = el('#join-code').value.trim();
       if (code.length !== 4) { el('#err').textContent = '4 karakterlik oda kodunu gir.'; return; }
@@ -130,8 +161,8 @@ const UI = (() => {
   }
 
   // ===================== ODA KUR / KATIL =====================
-  function hostRoom(myName) {
-    online = { myIndex: 0, myName, oppName: null, rematchMine: false, rematchTheirs: false };
+  function hostRoom(myName, turnChoice) {
+    online = { myIndex: 0, myName, oppName: null, turnChoice, rematchMine: false, rematchTheirs: false };
     screen(`
       <div class="screen">
         ${backBar('Oda Kuruldu')}
@@ -139,6 +170,7 @@ const UI = (() => {
           <div class="prev-label">Oda Kodu</div>
           <div class="room-code" id="code">····</div>
           <button class="btn" id="copy" hidden>📋 Kodu Kopyala</button>
+          <div class="need">Tur süresi: <b>${timeLabel(turnChoice)}</b></div>
           <div class="need" id="status">Sinyal sunucusuna bağlanılıyor…</div>
         </div>
         <div class="card prose">
@@ -198,17 +230,18 @@ const UI = (() => {
     switch (msg.type) {
       case 'hello': {
         online.oppName = String(msg.name || 'Rakip').slice(0, 14);
-        // Kurucu: iki isim de belli olunca maçı kurar ve başlatır.
+        // Kurucu: iki isim de belli olunca maçı kurar ve başlatır (süreyi o belirler).
         if (online.myIndex === 0) {
-          Game.newMatch([online.myName, online.oppName]);
-          Net.send({ type: 'start' });
+          Game.newMatch([online.myName, online.oppName], toTurnSeconds(online.turnChoice));
+          Net.send({ type: 'start', turnChoice: online.turnChoice });
           game();
         }
         break;
       }
       case 'start': {
-        // Katılan: kurucu 0. oyuncudur.
-        Game.newMatch([online.oppName || 'Rakip', online.myName]);
+        // Katılan: kurucu 0. oyuncudur; tur süresi kurucudan gelir.
+        const choice = TIME_OPTIONS.includes(msg.turnChoice) ? msg.turnChoice : Game.DEFAULT_TURN_SECONDS;
+        Game.newMatch([online.oppName || 'Rakip', online.myName], toTurnSeconds(choice));
         game();
         break;
       }
@@ -231,6 +264,16 @@ const UI = (() => {
         if (Game.state && Game.state.phase === 'playing') {
           Timer.stop();
           Game.timeout();
+          Sound.win();
+          end();
+        }
+        break;
+      }
+      case 'giveup': {
+        // Rakip pes etti (sırası ondaydı).
+        if (Game.state && Game.state.phase === 'playing') {
+          Timer.stop();
+          Game.giveUp();
           Sound.win();
           end();
         }
@@ -293,6 +336,7 @@ const UI = (() => {
   // ===================== OYUN EKRANI =====================
   function game() {
     const s = Game.state;
+    const unlimited = s.turnSeconds === null;
     screen(`
       <div class="screen game">
         <div class="scorebar">
@@ -309,14 +353,19 @@ const UI = (() => {
           <div class="need" id="need"></div>
         </div>
 
+        ${unlimited ? `
+        <div class="timer-wrap infinite">
+          <div class="inf">♾️</div>
+          <button class="btn giveup" id="giveup">🏳️ Pes Et</button>
+        </div>` : `
         <div class="timer-wrap">
           <svg viewBox="0 0 120 120" class="timer-svg">
             <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
             <circle class="ring" id="ring" cx="60" cy="60" r="54"
               stroke-dasharray="${RING}" stroke-dashoffset="0"></circle>
           </svg>
-          <div class="timer-num" id="timer-num">${Game.TURN_SECONDS}</div>
-        </div>
+          <div class="timer-num" id="timer-num">${s.turnSeconds}</div>
+        </div>`}
 
         <form id="word-form" autocomplete="off">
           <input id="word-input" type="text" inputmode="text" enterkeyhint="send"
@@ -334,6 +383,18 @@ const UI = (() => {
     const err = el('#err');
 
     el('#quit').onclick = () => { Timer.stop(); home(); };
+
+    const giveupBtn = el('#giveup');
+    if (giveupBtn) {
+      giveupBtn.onclick = () => {
+        if (online && Game.state.current !== online.myIndex) return;
+        if (online) Net.send({ type: 'giveup' });
+        Timer.stop();
+        Game.giveUp();
+        Sound.win();
+        end();
+      };
+    }
 
     el('#word-form').onsubmit = (e) => {
       e.preventDefault();
@@ -381,6 +442,8 @@ const UI = (() => {
     input.disabled = !myTurn;
     send.disabled = !myTurn;
     input.placeholder = myTurn ? 'Kelimeni yaz...' : 'Rakibin kelimesi bekleniyor…';
+    const giveupBtn = el('#giveup');
+    if (giveupBtn) giveupBtn.disabled = !myTurn;
 
     const last = s.chain[s.chain.length - 1];
     if (!last) {
@@ -407,9 +470,10 @@ const UI = (() => {
   }
 
   function startTurnTimer() {
+    if (Game.state.turnSeconds === null) { Timer.stop(); return; } // süresiz mod
     const ring = el('#ring');
     const num = el('#timer-num');
-    Timer.start(Game.TURN_SECONDS, {
+    Timer.start(Game.state.turnSeconds, {
       onTick(remain, frac) {
         num.textContent = Math.ceil(remain);
         ring.style.strokeDashoffset = String(RING * (1 - frac));
@@ -437,9 +501,11 @@ const UI = (() => {
   function loseDetail() {
     const s = Game.state;
     const loser = esc(s.players[1 - s.winner]);
-    if (s.chain.length === 0) return `${loser} 10 saniyede hiç kelime yazamadı.`;
-    if (s.required === null) return `${loser} 10 saniyede kelime bulamadı (harf serbestti!).`;
-    return `${loser} 10 saniyede "${Game.upper(s.required)}" ile başlayan kelime bulamadı.`;
+    if (s.loseReason === 'giveup') return `${loser} pes etti. 🏳️`;
+    const t = `${s.turnSeconds} saniyede`;
+    if (s.chain.length === 0) return `${loser} ${t} hiç kelime yazamadı.`;
+    if (s.required === null) return `${loser} ${t} kelime bulamadı (harf serbestti!).`;
+    return `${loser} ${t} "${Game.upper(s.required)}" ile başlayan kelime bulamadı.`;
   }
 
   // ===================== EL SONU =====================
