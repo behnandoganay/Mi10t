@@ -260,12 +260,12 @@ const UI = (() => {
         break;
       }
       case 'timeout': {
-        // Rakip süresinin dolduğunu bildirdi (sırası ondaydı).
+        // Rakip süresinin dolduğunu bildirdi (sırası ondaydı) — patlama iki tarafta da oynar.
         if (Game.state && Game.state.phase === 'playing') {
           Timer.stop();
           Game.timeout();
-          Sound.win();
-          end();
+          Sound.boom();
+          FX.explode(end);
         }
         break;
       }
@@ -274,7 +274,6 @@ const UI = (() => {
         if (Game.state && Game.state.phase === 'playing') {
           Timer.stop();
           Game.giveUp();
-          Sound.win();
           end();
         }
         break;
@@ -358,13 +357,14 @@ const UI = (() => {
           <div class="inf">♾️</div>
           <button class="btn giveup" id="giveup">🏳️ Pes Et</button>
         </div>` : `
-        <div class="timer-wrap">
+        <div class="timer-wrap" id="timer-wrap">
           <svg viewBox="0 0 120 120" class="timer-svg">
             <circle class="ring-bg" cx="60" cy="60" r="54"></circle>
             <circle class="ring" id="ring" cx="60" cy="60" r="54"
               stroke-dasharray="${RING}" stroke-dashoffset="0"></circle>
           </svg>
           <div class="timer-num" id="timer-num">${s.turnSeconds}</div>
+          <div class="timer-bomb" id="timer-bomb" hidden>💣</div>
         </div>`}
 
         <form id="word-form" autocomplete="off">
@@ -391,7 +391,6 @@ const UI = (() => {
         if (online) Net.send({ type: 'giveup' });
         Timer.stop();
         Game.giveUp();
-        Sound.win();
         end();
       };
     }
@@ -473,6 +472,8 @@ const UI = (() => {
     if (Game.state.turnSeconds === null) { Timer.stop(); return; } // süresiz mod
     const ring = el('#ring');
     const num = el('#timer-num');
+    const wrap = el('#timer-wrap');
+    const bomb = el('#timer-bomb');
     Timer.start(Game.state.turnSeconds, {
       onTick(remain, frac) {
         num.textContent = Math.ceil(remain);
@@ -480,6 +481,8 @@ const UI = (() => {
         const danger = remain <= 3;
         ring.classList.toggle('danger', danger);
         num.classList.toggle('danger', danger);
+        wrap.classList.toggle('panic', danger);
+        bomb.hidden = !danger;
       },
       onWarn() { Sound.tick(); },
       onExpire() {
@@ -492,8 +495,8 @@ const UI = (() => {
         }
         if (online) Net.send({ type: 'timeout' });
         Game.timeout();
-        Sound.win();
-        end();
+        Sound.boom();
+        FX.explode(end);
       },
     });
   }
@@ -558,6 +561,8 @@ const UI = (() => {
       }
     };
     el('#menu').onclick = home;
+    Sound.win();
+    FX.confetti();
   }
 
   function init(mount) {
