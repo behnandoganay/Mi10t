@@ -72,6 +72,7 @@ const Game = (() => {
       hintType,
       names,
       imposterSet,
+      starter: rand(players), // tartışmada ilk ipucunu verecek rastgele oyuncu
       revealIndex: 0,     // sırada rolünü görecek oyuncu
       votedOut: null,     // oylamada elenen oyuncu (index) ya da null
     };

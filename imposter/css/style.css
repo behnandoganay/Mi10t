@@ -178,6 +178,11 @@ h1, h2, h3 { margin: 0; font-weight: 800; letter-spacing: -0.02em; }
 .role-hint-note { color: var(--muted); font-size: 12px; margin: 0; opacity: 0.85; }
 
 /* ---------- Tartışma / timer ---------- */
+.starter-card { border-color: var(--primary); align-items: center; text-align: center; gap: 6px; }
+.starter { font-size: 20px; font-weight: 700; }
+.starter b { color: var(--primary); }
+.starter-sub { color: var(--muted); font-size: 13px; margin: 0; }
+
 .timer {
   font-size: 52px; font-weight: 800; text-align: center;
   font-variant-numeric: tabular-nums; letter-spacing: 0.02em;

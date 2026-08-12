@@ -235,6 +235,10 @@ const UI = (() => {
     const g = Game.get();
     screen(`
       <div class="screen center">
+        <div class="card starter-card">
+          <div class="starter">🎲 İlk ipucu: <b>${esc(g.names[g.starter])}</b></div>
+          <p class="starter-sub">Rastgele seçildi — ondan sonra saat yönünde devam edin.</p>
+        </div>
         <div class="card">
           <h2>🗣️ Tartışma Zamanı</h2>
           <p>Sırayla herkes kelimeyle ilgili <b>tek kelimelik ipucu</b> versin.
