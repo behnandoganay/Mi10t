@@ -45,7 +45,9 @@ const UI = (() => {
             <li>Oyuncu ve imposter sayısını seç, kategorileri belirle.</li>
             <li>Telefon sırayla herkese verilir. Herkes kendi kartına bakar:
               çoğu oyuncu <b>gizli kelimeyi</b> görür; imposter ise
-              <b>"SEN İMPOSTER'SİN"</b> yazısını görür.</li>
+              <b>"SEN İMPOSTER'SİN"</b> yazısını görür (kurulumda açtıysanız
+              imposter'a <b>kelimeyi çağrıştıran küçük bir ipucu</b> gösterilir —
+              ör. kelime "Buzdolabı" ise ipucu "soğuk").</li>
             <li>Sırayla herkes kelimeyle ilgili <b>tek kelimelik bir ipucu</b> söyler.
               İmposter yakalanmamak için blöf yapar.</li>
             <li>Tartışın ve oylayın. Sonra şüphelendiğiniz kişiyi seçin.</li>
@@ -92,9 +94,14 @@ const UI = (() => {
             </div>
           </div>
           <label class="toggle">
-            <input type="checkbox" id="seesCat" ${s.imposterSeesCategory ? 'checked' : ''}>
-            <span>İmposter kategoriyi görsün (kelimeyi değil)</span>
+            <input type="checkbox" id="impHint" ${s.imposterGetsHint ? 'checked' : ''}>
+            <span>İmpostere ipucu ver <em>(kelimeyi çağrıştıran tek kelime)</em></span>
           </label>
+        </div>
+
+        <div class="card">
+          <b>Oyuncular</b>
+          <div class="name-list" id="nameList"></div>
         </div>
 
         <div class="card">
@@ -123,12 +130,26 @@ const UI = (() => {
     bindBack(home);
 
     const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+    // İsim alanları: oyuncu sayısı kadar kutu; yazılanlar sayı değişince korunur.
+    const savedNames = Array.isArray(s.names) ? s.names : [];
+    const currentNames = () => els('.name-inp').map((i) => i.value);
+    const renderNames = (count, keep) => {
+      const vals = keep || savedNames;
+      el('#nameList').innerHTML = Array.from({ length: count }, (_, i) => `
+        <input type="text" class="name-inp" maxlength="20"
+          placeholder="Oyuncu ${i + 1}" value="${esc(vals[i] || '')}">
+      `).join('');
+    };
+    renderNames(s.players);
+
     const step = (key, delta) => {
       const node = el('#' + key);
       let v = parseInt(node.textContent, 10) + delta;
       if (key === 'players') v = clamp(v, 3, 20);
       if (key === 'imposters') v = clamp(v, 1, 9);
       node.textContent = v;
+      if (key === 'players') renderNames(v, currentNames());
     };
     els('[data-inc]').forEach((b) => (b.onclick = () => step(b.dataset.inc, 1)));
     els('[data-dec]').forEach((b) => (b.onclick = () => step(b.dataset.dec, -1)));
@@ -139,14 +160,15 @@ const UI = (() => {
     el('#startBtn').onclick = () => {
       const players = parseInt(el('#players').textContent, 10);
       const imposters = parseInt(el('#imposters').textContent, 10);
-      const imposterSeesCategory = el('#seesCat').checked;
+      const imposterGetsHint = el('#impHint').checked;
+      const names = currentNames().map((n) => n.trim());
       const selIds = els('#catPicker input:checked').map((i) => i.value);
       const chosen = cats.filter((c) => selIds.includes(c.id));
 
       // Ayarları kaydet (bir dahaki sefere hatırlanır).
-      Storage.saveSettings({ players, imposters, imposterSeesCategory, selected: selIds });
+      Storage.saveSettings({ players, imposters, imposterGetsHint, selected: selIds, names });
 
-      const res = Game.start({ players, imposters, imposterSeesCategory, categories: chosen });
+      const res = Game.start({ players, imposters, imposterGetsHint, names, categories: chosen });
       if (!res.ok) { el('#err').textContent = res.error; return; }
       reveal();
     };
@@ -157,13 +179,13 @@ const UI = (() => {
     const g = Game.get();
     const idx = g.revealIndex;
 
-    // "Telefonu N. oyuncuya ver" ara ekranı.
+    // "Telefonu sıradaki oyuncuya ver" ara ekranı.
     screen(`
       <div class="screen center">
         <div class="pass">
           <div class="pass-icon">📲</div>
           <h2>Telefonu ver:</h2>
-          <div class="pass-player">Oyuncu ${idx + 1}</div>
+          <div class="pass-player">${esc(g.names[idx])}</div>
           <p class="hint">Kimse bakmasın! Hazır olunca kartını aç.</p>
           <button class="btn primary big" id="showCard">Kartımı Gör</button>
         </div>
@@ -179,7 +201,12 @@ const UI = (() => {
       ? `
         <div class="role-tag imposter">SEN İMPOSTER'SİN 🤫</div>
         <p class="role-sub">Kelimeyi bilmiyorsun. Belli etmeden idare et!</p>
-        ${r.showCategory ? `<div class="role-word small">Kategori: ${esc(r.category)}</div>` : ''}
+        ${r.hint ? `
+          <div class="role-hint">💡 İpucu: <b>${esc(r.hint)}</b></div>
+          <p class="role-hint-note">${r.hintType === 'related'
+            ? 'Gizli kelime bu değil — aynı temadan bir örnek.'
+            : 'Gizli kelimeyi çağrıştıran bir ipucu.'}</p>
+        ` : ''}
       `
       : `
         <div class="role-tag crew">Kelime</div>
@@ -190,7 +217,7 @@ const UI = (() => {
     screen(`
       <div class="screen center">
         <div class="card role-card ${isImp ? 'imp' : 'crew'}">
-          <div class="role-who">Oyuncu ${idx + 1}</div>
+          <div class="role-who">${esc(r.name)}</div>
           ${body}
         </div>
         <button class="btn primary big" id="hideCard">Gizle &amp; Sıradaki ▶</button>
@@ -208,6 +235,10 @@ const UI = (() => {
     const g = Game.get();
     screen(`
       <div class="screen center">
+        <div class="card starter-card">
+          <div class="starter">🎲 İlk ipucu: <b>${esc(g.names[g.starter])}</b></div>
+          <p class="starter-sub">Rastgele seçildi — ondan sonra saat yönünde devam edin.</p>
+        </div>
         <div class="card">
           <h2>🗣️ Tartışma Zamanı</h2>
           <p>Sırayla herkes kelimeyle ilgili <b>tek kelimelik ipucu</b> versin.
@@ -253,7 +284,7 @@ const UI = (() => {
         </div>
         <div class="vote-grid">
           ${Array.from({ length: g.players }, (_, i) => `
-            <button class="vote-btn" data-p="${i}">Oyuncu ${i + 1}</button>
+            <button class="vote-btn" data-p="${i}">${esc(g.names[i])}</button>
           `).join('')}
         </div>
         <button class="btn ghost" id="skipVote">Kimse — Direkt Açıkla</button>
@@ -270,7 +301,7 @@ const UI = (() => {
   // ===================== SONUÇ =====================
   function result() {
     const r = Game.result();
-    const impNames = r.imposters.map((i) => `Oyuncu ${i + 1}`).join(', ');
+    const impNames = r.imposters.map((i) => r.names[i]).join(', ');
     let banner;
     if (r.votedOut == null) {
       banner = `<div class="verdict neutral">İmposter açıklanıyor…</div>`;
@@ -288,7 +319,7 @@ const UI = (() => {
           <div class="result-row"><span>Kategori</span><b>${esc(r.category)}</b></div>
           <div class="result-row"><span>İmposter${r.imposters.length > 1 ? 'lar' : ''}</span>
             <b class="imp-name">${esc(impNames)}</b></div>
-          ${r.votedOut != null ? `<div class="result-row"><span>Elenen</span><b>Oyuncu ${r.votedOut + 1}</b></div>` : ''}
+          ${r.votedOut != null ? `<div class="result-row"><span>Elenen</span><b>${esc(r.names[r.votedOut])}</b></div>` : ''}
         </div>
         <button class="btn primary big" id="again">🔄 Tekrar Oyna</button>
         <button class="btn" id="toHome">🏠 Ana Menü</button>
@@ -303,7 +334,7 @@ const UI = (() => {
       const chosen = selIds && selIds.length ? all.filter((c) => selIds.includes(c.id)) : all;
       const res = Game.start({
         players: s.players, imposters: s.imposters,
-        imposterSeesCategory: s.imposterSeesCategory, categories: chosen,
+        imposterGetsHint: s.imposterGetsHint, names: s.names, categories: chosen,
       });
       if (res.ok) reveal(); else setup();
     };
@@ -358,7 +389,7 @@ const UI = (() => {
   function editCategory(id) {
     const cat = id ? Storage.findCategory(id) : null;
     const name = cat ? cat.name : '';
-    const words = cat ? cat.words.join('\n') : '';
+    const words = cat ? Storage.wordsToText(cat.words) : '';
     screen(`
       <div class="screen">
         ${backBar(id ? 'Kategoriyi Düzenle' : 'Yeni Kategori')}
@@ -368,9 +399,12 @@ const UI = (() => {
             <input type="text" id="catName" placeholder="Örn: 🎵 Şarkıcılar" value="${esc(name)}">
           </label>
           <label class="field">
-            <span>Kelimeler <em>(her satıra bir tane, ya da virgülle ayır)</em></span>
-            <textarea id="catWords" rows="10" placeholder="Tarkan&#10;Sezen Aksu&#10;Barış Manço">${esc(words)}</textarea>
+            <span>Kelimeler <em>(her satıra bir tane)</em></span>
+            <textarea id="catWords" rows="10" placeholder="Buzdolabı | soğuk&#10;Elma | Newton&#10;Türk kahvesi | köpük">${esc(words)}</textarea>
           </label>
+          <p class="hint">💡 İpucu eklemek için: <b>Kelime | ipucu</b> yaz.
+            İpucu yazmazsan, imposter o kelime için aynı kategoriden başka bir
+            kelimeyi ipucu olarak görür.</p>
           <p class="err" id="err"></p>
           <button class="btn primary big" id="saveCat">💾 Kaydet</button>
         </div>
@@ -380,7 +414,7 @@ const UI = (() => {
     el('#saveCat').onclick = () => {
       const nm = el('#catName').value.trim();
       const wd = el('#catWords').value;
-      const wordCount = wd.split(/[\n,;]+/).map((w) => w.trim()).filter(Boolean).length;
+      const wordCount = Storage.cleanWords(wd).length;
       if (!nm) { el('#err').textContent = 'Kategori adı gir.'; return; }
       if (wordCount < 2) { el('#err').textContent = 'En az 2 kelime gir.'; return; }
       if (id) Storage.updateCategory(id, nm, wd);
