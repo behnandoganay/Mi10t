@@ -5,7 +5,7 @@
 //   - İlk akla gelen gönderme OLMAZ (Portekiz → Siuuu gibi).
 //   - Nesnenin kendi aleti/parçası OLMAZ (Fırın → kürek, Keman → yay gibi).
 //   - Bir adım öteden çağrışım tercih edilir: deyim, tarih, ikinci dereceden
-//     bağlantı, kelime oyunu (Fil → Hannibal, Ayı → borsa, Kanun → madde).
+//     bağlantı, kelime oyunu (Ayı → borsa, Kanun → madde, Nike → zafer).
 // Kendi kategorilerinde "Kelime | ipucu" biçimini kullanabilirsin (opsiyonel).
 
 const BUILTIN_CATEGORIES = [
@@ -13,12 +13,12 @@ const BUILTIN_CATEGORIES = [
     id: 'b_hayvanlar',
     name: '🐾 Hayvanlar',
     words: [
-      ['Aslan', 'Narnia'], ['Kaplan', 'kağıttan'], ['Fil', 'Hannibal'], ['Zürafa', 'atkı'],
+      ['Aslan', 'Narnia'], ['Kaplan', 'kağıttan'], ['Fil', 'Dumbo'], ['Zürafa', 'atkı'],
       ['Zebra', 'geçit'], ['Panda', 'WWF'], ['Kanguru', 'Migros'], ['Timsah', 'gözyaşı'],
       ['Penguen', 'belgesel'], ['Baykuş', 'Duolingo'], ['Kartal', 'semt'], ['Yunus', 'Emre'],
-      ['Köpekbalığı', 'bebek'], ['Ahtapot', 'Paul'], ['Yılan', 'merdiven'], ['Kaplumbağa', 'yarış'],
+      ['Köpekbalığı', 'bebek'], ['Ahtapot', 'Paul'], ['Yılan', 'Medusa'], ['Kaplumbağa', 'yarış'],
       ['Tavşan', 'Duracell'], ['Sincap', 'Alvin'], ['Kirpi', 'Sega'], ['Yarasa', 'Transilvanya'],
-      ['Deve', 'iğne'], ['Su aygırı', 'esneme'], ['Gorilla', 'gökdelen'], ['Şempanze', 'uzay'],
+      ['Deve', 'kervan'], ['Su aygırı', 'esneme'], ['Gorilla', 'gökdelen'], ['Şempanze', 'uzay'],
       ['Kurt', 'dolunay'], ['Tilki', 'kümes'], ['Ayı', 'borsa'], ['Geyik', 'muhabbet'],
       ['Karınca', 'ağustosböceği'], ['Arı', 'Maya'],
     ],
